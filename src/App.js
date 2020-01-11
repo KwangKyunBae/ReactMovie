@@ -12,18 +12,32 @@ class App extends Component {
     
   }
   componentDidMount(){
-    fetch('https://yts.lt/api/v2/list_movies.json?sort_by=rating')
-    .then(potato => potato.json())
-    .then(json => console.log(json)) //fetch의 결과물
-    .catch(err => console.log(err))
+    this.__getMovies();
   }
 
   __renderMovies = () =>{
-    const movies = this.state.movies.map((movies, index) => {
-      return <Movie title={movies.title} poster={movies.poster} key={index}/>
+    const movies = this.state.movies.map((movie, index) => {
+      return <Movie title={movie.title} poster={movie.large_cover_image} key={index}/>
     })
     return movies
   }
+  // async는 순서와 상관없이 작업이 진행된다.
+  // await은 cappApi가 끝나길 기다리는것
+  // setState는 call api가 끝나기전까지 실행안된다.
+  __getMovies = async () =>{
+    const movies = await this.__callApi()
+    this.setState({
+      movies
+    })
+  }
+
+  __callApi = () =>{
+     return fetch('https://yts.lt/api/v2/list_movies.json?sort_by=rating')
+    .then(potato => potato.json())
+    .then(json => json.data.movies)
+    .catch(err => console.log(err))
+  }
+
 
   render(){
     return(
